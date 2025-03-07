@@ -68,6 +68,10 @@ class AndroidWebViewProxy {
       WebResourceErrorCompat,
     )? onReceivedRequestErrorCompat,
     void Function(WebViewClient, WebView, int, String, String)? onReceivedError,
+    bool Function(
+      WebView webView,
+      ProcessTerminationDetails details,
+      )? onWebViewRenderProcessTerminated,
     void Function(WebViewClient, WebView, WebResourceRequest)? requestLoading,
     void Function(WebViewClient, WebView, String)? urlLoading,
     void Function(WebViewClient, WebView, String, bool)? doUpdateVisitedHistory,

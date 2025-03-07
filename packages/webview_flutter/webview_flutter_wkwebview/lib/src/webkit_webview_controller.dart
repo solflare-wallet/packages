@@ -852,6 +852,17 @@ window.addEventListener("error", function(e) {
     return _webView.setInspectable(inspectable);
   }
 
+  Future<void> addUserScript(String script) {
+    final WKUserScript userScript = WKUserScript(
+      script,
+      WKUserScriptInjectionTime.atDocumentStart,
+      isMainFrameOnly: false,
+    );
+
+    return _webView.configuration.userContentController
+        .addUserScript(userScript);
+  }
+
   @override
   Future<String?> getUserAgent() async {
     final String? customUserAgent = await _webView.getCustomUserAgent();

@@ -37,7 +37,7 @@ import 'webview_controller.dart';
 class NavigationDelegate {
   /// Constructs a [NavigationDelegate].
   ///
-  /// {@template webview_fluttter.NavigationDelegate.constructor}
+  /// {@template webview_flutter.NavigationDelegate.constructor}
   /// `onUrlChange`: invoked when the underlying web view changes to a new url.
   /// `onHttpAuthRequest`: invoked when the web view is requesting authentication.
   /// {@endtemplate}
@@ -48,6 +48,7 @@ class NavigationDelegate {
     void Function(String url)? onPageFinished,
     void Function(int progress)? onProgress,
     void Function(WebResourceError error)? onWebResourceError,
+    bool Function(ProcessTerminationDetails details)? onWebViewRenderProcessTerminated,
     void Function(UrlChange change)? onUrlChange,
     void Function(HttpAuthRequest request)? onHttpAuthRequest,
     void Function(HttpResponseError error)? onHttpError,
@@ -58,6 +59,7 @@ class NavigationDelegate {
           onPageFinished: onPageFinished,
           onProgress: onProgress,
           onWebResourceError: onWebResourceError,
+          onWebViewRenderProcessTerminated: onWebViewRenderProcessTerminated,
           onUrlChange: onUrlChange,
           onHttpAuthRequest: onHttpAuthRequest,
           onHttpError: onHttpError,
@@ -66,7 +68,7 @@ class NavigationDelegate {
   /// Constructs a [NavigationDelegate] from creation params for a specific
   /// platform.
   ///
-  /// {@macro webview_fluttter.NavigationDelegate.constructor}
+  /// {@macro webview_flutter.NavigationDelegate.constructor}
   ///
   /// {@template webview_flutter.NavigationDelegate.fromPlatformCreationParams}
   /// Below is an example of setting platform-specific creation parameters for
@@ -102,6 +104,7 @@ class NavigationDelegate {
     void Function(String url)? onPageFinished,
     void Function(int progress)? onProgress,
     void Function(WebResourceError error)? onWebResourceError,
+        bool Function(ProcessTerminationDetails details)? onWebViewRenderProcessTerminated,
     void Function(UrlChange change)? onUrlChange,
     void Function(HttpAuthRequest request)? onHttpAuthRequest,
     void Function(HttpResponseError error)? onHttpError,
@@ -112,6 +115,7 @@ class NavigationDelegate {
           onPageFinished: onPageFinished,
           onProgress: onProgress,
           onWebResourceError: onWebResourceError,
+          onWebViewRenderProcessTerminated: onWebViewRenderProcessTerminated,
           onUrlChange: onUrlChange,
           onHttpAuthRequest: onHttpAuthRequest,
           onHttpError: onHttpError,
@@ -119,7 +123,7 @@ class NavigationDelegate {
 
   /// Constructs a [NavigationDelegate] from a specific platform implementation.
   ///
-  /// {@macro webview_fluttter.NavigationDelegate.constructor}
+  /// {@macro webview_flutter.NavigationDelegate.constructor}
   NavigationDelegate.fromPlatform(
     this.platform, {
     this.onNavigationRequest,
@@ -127,6 +131,7 @@ class NavigationDelegate {
     this.onPageFinished,
     this.onProgress,
     this.onWebResourceError,
+        this.onWebViewRenderProcessTerminated,
     void Function(UrlChange change)? onUrlChange,
     HttpAuthRequestCallback? onHttpAuthRequest,
     void Function(HttpResponseError error)? onHttpError,
@@ -145,6 +150,12 @@ class NavigationDelegate {
     }
     if (onWebResourceError != null) {
       platform.setOnWebResourceError(onWebResourceError!);
+    }
+    if (onWebViewRenderProcessTerminated != null) {
+      // onWebViewRenderProcessTerminated callback is available on Android only, see:
+      // https://developer.android.com/reference/android/webkit/WebViewClient#onRenderProcessGone(android.webkit.WebView,%20android.webkit.RenderProcessGoneDetail)
+      platform.setOnWebViewRenderProcessTerminated(
+          onWebViewRenderProcessTerminated!);
     }
     if (onUrlChange != null) {
       platform.setOnUrlChange(onUrlChange);
@@ -183,4 +194,9 @@ class NavigationDelegate {
 
   /// Invoked when a resource loading error occurred.
   final WebResourceErrorCallback? onWebResourceError;
+
+  /// Invoked when a the given WebView's render process has exited (Android only).
+  /// See: https://developer.android.com/reference/android/webkit/WebViewClient#onRenderProcessGone(android.webkit.WebView,%20android.webkit.RenderProcessGoneDetail)
+  final WebViewRenderProcessTerminatedCallback?
+  onWebViewRenderProcessTerminated;
 }

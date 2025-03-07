@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.webkit.WebResourceErrorCompat;
 import androidx.webkit.WebViewClientCompat;
+import android.webkit.RenderProcessGoneDetail;
 
 /**
  * Host api implementation for {@link WebViewClient}.
@@ -84,6 +85,33 @@ public class WebViewClientProxyApi extends PigeonApiWebViewClient {
               () ->
                   api.onReceivedError(
                       this, view, (long) errorCode, description, failingUrl, reply -> null));
+    }
+
+    /**
+     * Passes arguments from {@link WebViewClient#onRenderProcessGone(WebView,
+     * RenderProcessGoneDetail)} to Dart.
+     */
+    public void onRenderProcessGone(
+            @NonNull WebViewClient webViewClient,
+            @NonNull WebView webView,
+            @NonNull RenderProcessGoneDetail details,
+            @NonNull Reply<Boolean> callback) {
+      api.create(webView, reply -> {});
+
+      GeneratedAndroidWebView.RenderProcessGoneDetailData detailsData =
+              new GeneratedAndroidWebView.RenderProcessGoneDetailData();
+      if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        GeneratedAndroidWebView.RenderProcessGoneDetailData.Builder requestData =
+                new GeneratedAndroidWebView.RenderProcessGoneDetailData.Builder()
+                        .setDidCrash(details.didCrash())
+                        .setRendererPriorityAtExit((long) details.rendererPriorityAtExit());
+        detailsData = requestData.build();
+      }
+
+      final Long webViewIdentifier =
+              Objects.requireNonNull(instanceManager.getIdentifierForStrongReference(webView));
+      onRenderProcessGone(
+              getIdentifierForClient(webViewClient), webViewIdentifier, detailsData, callback);
     }
 
     @Override
