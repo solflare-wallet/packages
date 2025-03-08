@@ -156,15 +156,15 @@ abstract class WebResourceErrorCompat {
   late String description;
 }
 
-@ProxyApi()
-class RenderProcessGoneDetailData {
-  const RenderProcessGoneDetailData({
-    required this.didCrash,
-    required this.rendererPriorityAtExit,
-  });
-
-  final bool didCrash;
-  final int rendererPriorityAtExit;
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.webkit.RenderProcessGoneDetail',
+    minAndroidApi: 26,
+  ),
+)
+abstract class RenderProcessGoneDetail {
+  late bool didCrash;
+  late int rendererPriorityAtExit;
 }
 
 /// Represents a position on a web page.
@@ -440,10 +440,9 @@ abstract class WebViewClient {
     String failingUrl,
   )? onReceivedError;
 
-  late void Function(
-      int instanceId,
-      int webViewInstanceId,
-      RenderProcessGoneDetailData data,
+  late bool Function(
+      WebView webView,
+      RenderProcessGoneDetail data,
       )? onRenderProcessGone;
 
   /// Give the host application a chance to take control when a URL is about to
@@ -661,18 +660,6 @@ abstract class WebChromeClient {
   ///
   /// Defaults to false.
   void setSynchronousReturnValueForOnJsPrompt(bool value);
-}
-
-/// This class provides more specific information about why the webview render process exited (Android only).
-/// The application may use this to decide how to handle the situation.
-/// See [WebViewClient.onWebViewRenderProcessTerminated].
-@ProxyApi()
-abstract class ProcessTerminationDetails {
-  /// Indicates whether the render process was observed to crash, or whether it was killed by the system.
-  late bool didCrash;
-
-  /// Returns the renderer priority that was set at the time that the renderer exited.
-  late int rendererPriorityAtExit;
 }
 
 /// Provides access to the assets registered as part of the App bundle.

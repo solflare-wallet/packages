@@ -1376,10 +1376,7 @@ class AndroidNavigationDelegate extends PlatformNavigationDelegate {
           ));
         }
       },
-      onWebViewRenderProcessTerminated: (
-          android_webview.WebView webView,
-          android_webview.ProcessTerminationDetails details,
-          ) {
+      onRenderProcessGone: (_, android_webview.WebView webView, android_webview.RenderProcessGoneDetail details) {
         final WebViewRenderProcessTerminatedCallback? callback =
             weakThis.target?._onWebViewRenderProcessTerminated;
         bool applicationDidHandleWebviewRenderCrash = false;
