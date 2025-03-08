@@ -7,6 +7,7 @@ export 'creation_params.dart';
 export 'javascript_channel.dart';
 export 'javascript_message.dart';
 export 'javascript_mode.dart';
+export 'process_termination_details.dart';
 export 'web_resource_error.dart';
 export 'web_resource_error_type.dart';
 export 'web_settings.dart';
