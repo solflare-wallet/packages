@@ -156,6 +156,17 @@ abstract class WebResourceErrorCompat {
   late String description;
 }
 
+@ProxyApi(
+  kotlinOptions: KotlinProxyApiOptions(
+    fullClassName: 'android.webkit.RenderProcessGoneDetail',
+    minAndroidApi: 26,
+  ),
+)
+abstract class RenderProcessGoneDetail {
+  late bool didCrash;
+  late int rendererPriorityAtExit;
+}
+
 /// Represents a position on a web page.
 ///
 /// This is a custom class created for convenience of the wrapper.
@@ -429,6 +440,11 @@ abstract class WebViewClient {
     String failingUrl,
   )? onReceivedError;
 
+  late bool Function(
+      WebView webView,
+      RenderProcessGoneDetail data,
+      )? onRenderProcessGone;
+
   /// Give the host application a chance to take control when a URL is about to
   /// be loaded in the current WebView.
   late void Function(
@@ -469,6 +485,8 @@ abstract class WebViewClient {
   ///
   /// Defaults to false.
   void setSynchronousReturnValueForShouldOverrideUrlLoading(bool value);
+
+  void setSynchronousReturnValueForApplicationDidHandleWebViewRenderProcessCrash(bool value);
 }
 
 /// Handles notifications that a file should be downloaded.

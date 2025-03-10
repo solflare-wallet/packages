@@ -651,6 +651,7 @@ class CapturingWebViewClient extends android_webview.WebViewClient {
     super.onReceivedRequestErrorCompat,
     super.doUpdateVisitedHistory,
     super.onReceivedRequestError,
+    super.onRenderProcessGone,
     super.requestLoading,
     super.urlLoading,
   }) : super.pigeon_detached(

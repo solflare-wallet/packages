@@ -163,6 +163,10 @@ void main() {
                   android_webview.WebResourceRequest,
                   android_webview.WebResourceResponse,
                 )? onReceivedHttpError,
+                bool Function(
+                    android_webview.WebViewClient,
+                    android_webview.WebView,
+                    android_webview.RenderProcessGoneDetail)? onRenderProcessGone,
                 void Function(
                   android_webview.WebViewClient,
                   android_webview.WebView,
@@ -2065,6 +2069,7 @@ class TestWebViewClient extends android_webview.WebViewClient {
     super.onReceivedRequestError,
     super.onReceivedRequestErrorCompat,
     super.onReceivedError,
+    super.onRenderProcessGone,
     super.requestLoading,
     super.urlLoading,
     super.doUpdateVisitedHistory,

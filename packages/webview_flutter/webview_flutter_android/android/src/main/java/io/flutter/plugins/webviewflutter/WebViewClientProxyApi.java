@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.webkit.WebResourceErrorCompat;
 import androidx.webkit.WebViewClientCompat;
+import android.webkit.RenderProcessGoneDetail;
 
 /**
  * Host api implementation for {@link WebViewClient}.
@@ -29,6 +30,7 @@ public class WebViewClientProxyApi extends PigeonApiWebViewClient {
   public static class WebViewClientImpl extends WebViewClient {
     private final WebViewClientProxyApi api;
     private boolean returnValueForShouldOverrideUrlLoading = false;
+    private boolean applicationDidHandleWebViewRenderProcessCrash = true;
 
     /**
      * Creates a {@link WebViewClient} that passes arguments of callbacks methods to Dart.
@@ -87,6 +89,15 @@ public class WebViewClientProxyApi extends PigeonApiWebViewClient {
     }
 
     @Override
+    public boolean onRenderProcessGone(@NonNull WebView view, RenderProcessGoneDetail detail) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            api.getPigeonRegistrar()
+                    .runOnMainThread(() -> api.onRenderProcessGone(this, view, detail, reply -> null));
+        }
+        return applicationDidHandleWebViewRenderProcessCrash;
+    }
+
+    @Override
     public boolean shouldOverrideUrlLoading(
         @NonNull WebView view, @NonNull WebResourceRequest request) {
       api.getPigeonRegistrar()
@@ -136,6 +147,11 @@ public class WebViewClientProxyApi extends PigeonApiWebViewClient {
     public void setReturnValueForShouldOverrideUrlLoading(boolean value) {
       returnValueForShouldOverrideUrlLoading = value;
     }
+
+    /** Sets return value for {@link #shouldOverrideUrlLoading}. */
+    public void setReturnValueForApplicationDidHandleWebViewRenderProcessCrash(boolean value) {
+      applicationDidHandleWebViewRenderProcessCrash = value;
+    }
   }
 
   /**
@@ -145,6 +161,7 @@ public class WebViewClientProxyApi extends PigeonApiWebViewClient {
   public static class WebViewClientCompatImpl extends WebViewClientCompat {
     private final WebViewClientProxyApi api;
     private boolean returnValueForShouldOverrideUrlLoading = false;
+    private boolean applicationDidHandleWebViewRenderProcessCrash = false;
 
     public WebViewClientCompatImpl(@NonNull WebViewClientProxyApi api) {
       this.api = api;
@@ -198,6 +215,15 @@ public class WebViewClientProxyApi extends PigeonApiWebViewClient {
     }
 
     @Override
+    public boolean onRenderProcessGone(@NonNull WebView view, RenderProcessGoneDetail detail) {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        api.getPigeonRegistrar()
+                .runOnMainThread(() -> api.onRenderProcessGone(this, view, detail, reply -> null));
+      }
+      return applicationDidHandleWebViewRenderProcessCrash;
+    }
+
+    @Override
     public boolean shouldOverrideUrlLoading(
         @NonNull WebView view, @NonNull WebResourceRequest request) {
       api.getPigeonRegistrar()
@@ -247,6 +273,10 @@ public class WebViewClientProxyApi extends PigeonApiWebViewClient {
     public void setReturnValueForShouldOverrideUrlLoading(boolean value) {
       returnValueForShouldOverrideUrlLoading = value;
     }
+
+    public void setReturnValueForApplicationDidHandleWebViewRenderProcessCrash(boolean value) {
+      applicationDidHandleWebViewRenderProcessCrash = value;
+    }
   }
 
   /** Creates a host API that handles creating {@link WebViewClient}s. */
@@ -283,6 +313,22 @@ public class WebViewClientProxyApi extends PigeonApiWebViewClient {
     } else {
       throw new IllegalStateException(
           "This WebViewClient doesn't support setting the returnValueForShouldOverrideUrlLoading.");
+    }
+  }
+
+  @Override
+  public void setSynchronousReturnValueForApplicationDidHandleWebViewRenderProcessCrash(
+          @NonNull WebViewClient pigeon_instance, boolean value) {
+    if (pigeon_instance instanceof WebViewClientCompatImpl) {
+      ((WebViewClientCompatImpl) pigeon_instance)
+              .setReturnValueForApplicationDidHandleWebViewRenderProcessCrash(value);
+    } else if (getPigeonRegistrar().sdkIsAtLeast(Build.VERSION_CODES.N)
+            && pigeon_instance instanceof WebViewClientImpl) {
+      ((WebViewClientImpl) pigeon_instance)
+              .setReturnValueForApplicationDidHandleWebViewRenderProcessCrash(value);
+    } else {
+      throw new IllegalStateException(
+              "This WebViewClient doesn't support setting the applicationDidHandleWebViewRenderProcessCrash.");
     }
   }
 
