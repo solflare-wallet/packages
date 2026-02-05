@@ -2,6 +2,42 @@
 
 The Apple WKWebView implementation of [`webview_flutter`][1].
 
+## Solflare Fork
+
+This is a fork of the official `webview_flutter_wkwebview` package maintained by [Solflare](https://github.com/solflare-wallet).
+
+### Why This Fork Exists
+
+This fork adds the `addUserScript` method for injecting JavaScript at document start, before the page loads. This is essential for:
+
+- **Wallet bridge injection** - Inject provider scripts before page JavaScript runs
+- **Window object modification** - Set up `window` properties before any page code executes
+- **Communication channels** - Establish native-to-web bridges early
+
+### Custom Features
+
+| Feature | Description |
+|---------|-------------|
+| `addUserScript(String script)` | Injects JavaScript at document start on all frames |
+
+### Usage
+
+```dart
+if (controller.platform is WebKitWebViewController) {
+  await (controller.platform as WebKitWebViewController).addUserScript('''
+    window.solflare = { ready: true };
+  ''');
+}
+```
+
+### Related Packages
+
+This fork works together with:
+- [`webview_flutter`](https://github.com/solflare-wallet/packages/tree/main/packages/webview_flutter/webview_flutter) - Main package
+- [`webview_flutter_platform_interface`](https://github.com/solflare-wallet/packages/tree/main/packages/webview_flutter/webview_flutter_platform_interface) - Shared types
+
+---
+
 ## Usage
 
 This package is [endorsed][2], which means you can simply use `webview_flutter`

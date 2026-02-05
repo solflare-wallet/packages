@@ -1,5 +1,7 @@
-## NEXT
+## 4.11.0 (Solflare Fork)
 
+* **Fork Feature**: Adds `onWebViewRenderProcessTerminated` callback to `NavigationDelegate` for Android render process crash detection.
+* **Fork Feature**: Adds `addUserScript` method for iOS/macOS JavaScript injection at document start.
 * Updates minimum supported SDK version to Flutter 3.22/Dart 3.4.
 
 ## 4.10.0
