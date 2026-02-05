@@ -2,9 +2,54 @@
 
 <?code-excerpt path-base="example/lib"?>
 
-[![pub package](https://img.shields.io/pub/v/webview_flutter.svg)](https://pub.dev/packages/webview_flutter)
-
 A Flutter plugin that provides a WebView widget.
+
+## Solflare Fork
+
+This is a fork of the official `webview_flutter` package maintained by [Solflare](https://github.com/solflare-wallet).
+
+### Why This Fork Exists
+
+This fork adds two custom features not available in the official package:
+
+| Feature | Platform | Description |
+|---------|----------|-------------|
+| `onWebViewRenderProcessTerminated` | Android | Callback triggered when the WebView render process crashes or is killed |
+| `addUserScript` | iOS/macOS | Method to inject JavaScript at document start |
+
+### Usage - Render Process Termination (Android)
+
+```dart
+NavigationDelegate(
+  onWebViewRenderProcessTerminated: (ProcessTerminationDetails details) {
+    if (details.didCrash) {
+      // Handle crash - show error UI, attempt reload, etc.
+    } else {
+      // Process was killed by system for memory
+    }
+    return true; // Return true if your app handled the termination
+  },
+)
+```
+
+### Usage - User Script Injection (iOS/macOS)
+
+```dart
+if (controller.platform is WebKitWebViewController) {
+  (controller.platform as WebKitWebViewController).addUserScript('''
+    window.myBridge = { ready: true };
+  ''');
+}
+```
+
+### Related Packages
+
+This fork works together with:
+- [`webview_flutter_android`](https://github.com/solflare-wallet/packages/tree/main/packages/webview_flutter/webview_flutter_android) - Android implementation
+- [`webview_flutter_wkwebview`](https://github.com/solflare-wallet/packages/tree/main/packages/webview_flutter/webview_flutter_wkwebview) - iOS/macOS implementation
+- [`webview_flutter_platform_interface`](https://github.com/solflare-wallet/packages/tree/main/packages/webview_flutter/webview_flutter_platform_interface) - Shared types
+
+---
 
 On iOS the WebView widget is backed by a [WKWebView](https://developer.apple.com/documentation/webkit/wkwebview).
 On Android the WebView widget is backed by a [WebView](https://developer.android.com/reference/android/webkit/WebView).
