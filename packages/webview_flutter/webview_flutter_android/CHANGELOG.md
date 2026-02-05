@@ -1,3 +1,13 @@
+## 4.4.0 (Solflare Fork)
+
+* **Fork Feature**: Adds `onRenderProcessGone` callback to detect WebView render process crashes.
+* **Fork Feature**: Adds `ProcessTerminationDetails` with `didCrash` and `rendererPriorityAtExit`.
+* Updates compileSdk to 36.
+* Updates Android Gradle Plugin to 8.7.3.
+* Updates Gradle to 8.11.1.
+* Updates Kotlin to 2.1.10.
+* Updates Java compatibility to VERSION_17.
+
 ## 4.3.3
 
 * Updates compileSdk 34 to flutter.compileSdkVersion.

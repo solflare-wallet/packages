@@ -1,3 +1,7 @@
+## 3.19.0 (Solflare Fork)
+
+* **Fork Feature**: Adds `addUserScript` method for injecting JavaScript at document start.
+
 ## 3.18.4
 
 * Fixes crash when native `WKFrameInfo.request` is nil.

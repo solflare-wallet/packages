@@ -18,10 +18,7 @@ dependencies:
     # the parent directory to use the current plugin's version.
     path: ../
   webview_flutter_platform_interface:
-    git:
-      url: https://github.com/solflare-wallet/packages.git
-      path: packages/webview_flutter/webview_flutter_platform_interface
-      ref: feature/webview_flutter_upgrade
+    path: ../../webview_flutter_platform_interface
 
 dev_dependencies:
   espresso: ^0.4.0

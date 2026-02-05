@@ -2,6 +2,48 @@
 
 The Android implementation of [`webview_flutter`][1].
 
+## Solflare Fork
+
+This is a fork of the official `webview_flutter_android` package maintained by [Solflare](https://github.com/solflare-wallet).
+
+### Why This Fork Exists
+
+This fork adds the `onRenderProcessGone` callback, which notifies the app when the WebView's render process crashes or is killed by Android's memory management. This feature is critical for:
+
+- **Detecting WebView crashes** - Know when the rendering process crashed vs was killed by the system
+- **Graceful recovery** - Show appropriate UI or attempt to reload the WebView
+- **User notification** - Display crash information or offer recovery options
+
+### Custom Features
+
+| Feature | Description |
+|---------|-------------|
+| `onWebViewRenderProcessTerminated` | Callback triggered when the WebView render process exits |
+| `ProcessTerminationDetails` | Provides `didCrash` (boolean) and `rendererPriorityAtExit` (int) |
+
+### Usage
+
+```dart
+NavigationDelegate(
+  onWebViewRenderProcessTerminated: (ProcessTerminationDetails details) {
+    if (details.didCrash) {
+      // Handle crash - show error UI, attempt reload, etc.
+    } else {
+      // Process was killed by system for memory - may just reload
+    }
+    return true; // Return true if your app handled the termination
+  },
+)
+```
+
+### Related Packages
+
+This fork works together with:
+- [`webview_flutter`](https://github.com/solflare-wallet/packages/tree/main/packages/webview_flutter/webview_flutter) - Main package exposing the callback
+- [`webview_flutter_platform_interface`](https://github.com/solflare-wallet/packages/tree/main/packages/webview_flutter/webview_flutter_platform_interface) - Shared types
+
+---
+
 ## Usage
 
 This package is [endorsed][2], which means you can simply use `webview_flutter`
