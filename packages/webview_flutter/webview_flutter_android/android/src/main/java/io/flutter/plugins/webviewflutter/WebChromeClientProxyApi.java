@@ -4,10 +4,12 @@
 
 package io.flutter.plugins.webviewflutter;
 
+import android.app.Dialog;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Message;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.ConsoleMessage;
 import android.webkit.GeolocationPermissions;
 import android.webkit.JsPromptResult;
@@ -237,9 +239,15 @@ public class WebChromeClientProxyApi extends PigeonApiWebChromeClient {
   /**
    * Implementation of {@link WebChromeClient} that only allows secure urls when opening a new
    * window.
+   *
+   * <p>JS-initiated popups (window.open with features, e.g. OAuth) are presented in a native
+   * {@link Dialog}. User-initiated target="_blank" links load in the parent WebView (existing
+   * behavior). The {@code isDialog} parameter from {@link #onCreateWindow} distinguishes the two.
    */
   public static class SecureWebChromeClient extends WebChromeClient {
     @Nullable WebViewClient webViewClient;
+    @Nullable private WebView popupWebView;
+    @Nullable private Dialog popupDialog;
 
     @Override
     public boolean onCreateWindow(
@@ -247,11 +255,88 @@ public class WebChromeClientProxyApi extends PigeonApiWebChromeClient {
         boolean isDialog,
         boolean isUserGesture,
         @NonNull Message resultMsg) {
+      // isDialog is true when window.open() includes popup features (e.g. OAuth
+      // flows that pass popup=1,width=...,height=...). target="_blank" link clicks
+      // have isDialog = false.
+      if (isDialog) {
+        return onCreateWindowAsPopup(view, resultMsg, new WebView(view.getContext()));
+      }
       return onCreateWindow(view, resultMsg, new WebView(view.getContext()));
     }
 
     /**
-     * Verifies that a url opened by `Window.open` has a secure url.
+     * Opens the new window content in a native full-screen {@link Dialog}.
+     *
+     * <p>Used for JS-initiated window.open() calls (e.g. Google OAuth) where the popup needs its
+     * own browsing context so that window.opener.postMessage() works correctly.
+     */
+    @VisibleForTesting
+    boolean onCreateWindowAsPopup(
+        @NonNull final WebView view,
+        @NonNull Message resultMsg,
+        @Nullable WebView popupView) {
+      dismissPopup();
+
+      if (popupView == null) {
+        popupView = new WebView(view.getContext());
+      }
+
+      final WebView popup = popupView;
+      popup.getSettings().setJavaScriptEnabled(true);
+      popup.getSettings().setDomStorageEnabled(true);
+      // Use the popup's own default UA with WebView markers stripped, instead of
+      // copying the parent's UA (which may be a custom partner UA that Google rejects).
+      String defaultUA = popup.getSettings().getUserAgentString();
+      if (defaultUA != null) {
+        popup.getSettings()
+            .setUserAgentString(defaultUA.replace("Version/4.0 ", "").replace(" wv", ""));
+      }
+      this.popupWebView = popup;
+
+      popup.setWebChromeClient(
+          new WebChromeClient() {
+            @Override
+            public void onCloseWindow(WebView window) {
+              dismissPopup();
+            }
+          });
+
+      popup.setWebViewClient(
+          new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView webView, String url) {
+              if (url != null
+                  && (url.contains("/gsi/") || url.contains("/o/oauth2/"))) {
+                webView.postDelayed(() -> dismissPopup(), 1000);
+              }
+            }
+          });
+
+      final Dialog dialog =
+          new Dialog(view.getContext(), android.R.style.Theme_DeviceDefault_NoActionBar);
+      dialog.setContentView(
+          popup,
+          new ViewGroup.LayoutParams(
+              ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+      dialog.setOnDismissListener(
+          d -> {
+            popup.destroy();
+            popupWebView = null;
+            popupDialog = null;
+          });
+      this.popupDialog = dialog;
+
+      final WebView.WebViewTransport transport = (WebView.WebViewTransport) resultMsg.obj;
+      transport.setWebView(popup);
+      resultMsg.sendToTarget();
+
+      dialog.show();
+
+      return true;
+    }
+
+    /**
+     * Loads the URL in the parent WebView (existing behavior for target="_blank" links).
      *
      * @param view the WebView from which the request for a new window originated.
      * @param resultMsg the message to send when once a new WebView has been created. resultMsg.obj
@@ -309,6 +394,19 @@ public class WebChromeClientProxyApi extends PigeonApiWebChromeClient {
       resultMsg.sendToTarget();
 
       return true;
+    }
+
+    @Override
+    public void onCloseWindow(WebView window) {
+      if (window == popupWebView) {
+        dismissPopup();
+      }
+    }
+
+    private void dismissPopup() {
+      if (popupDialog != null && popupDialog.isShowing()) {
+        popupDialog.dismiss();
+      }
     }
 
     /**
