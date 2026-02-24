@@ -167,14 +167,17 @@ class WebKitWebViewController extends PlatformWebViewController {
         WKNavigationAction navigationAction,
       ) {
         // JS-initiated popups (window.open) are handled natively via a modal
-        // WKWebView. For user-initiated target="_blank" links, load in the
-        // parent WebView (native returns nil for these).
-        final bool isForMainFrame =
-            navigationAction.targetFrame?.isMainFrame ?? false;
-        if (!isForMainFrame) {
-          PlatformWebView.fromNativeWebView(webView).load(
-            navigationAction.request,
-          );
+        // WKWebView — don't also load the URL in the parent.
+        // For user-initiated target="_blank" links (native returns nil),
+        // load in the parent WebView to preserve existing behavior.
+        if (navigationAction.navigationType != NavigationType.other) {
+          final bool isForMainFrame =
+              navigationAction.targetFrame?.isMainFrame ?? false;
+          if (!isForMainFrame) {
+            PlatformWebView.fromNativeWebView(webView).load(
+              navigationAction.request,
+            );
+          }
         }
       },
       requestMediaCapturePermission: (
