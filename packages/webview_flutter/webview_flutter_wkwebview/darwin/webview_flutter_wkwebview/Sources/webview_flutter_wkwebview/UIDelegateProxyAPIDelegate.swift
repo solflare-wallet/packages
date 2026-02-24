@@ -102,10 +102,10 @@ class UIDelegateImpl: NSObject, WKUIDelegate, WKNavigationDelegate {
     guard webView == popupWebView,
           let url = webView.url?.absoluteString else { return }
 
-    // Google OAuth callback pages (gsi/transform, o/oauth2) post credentials
-    // via postMessage and don't reliably call window.close(). Auto-dismiss
-    // after a short delay so the credential reaches the opener.
-    if url.contains("/gsi/") || url.contains("/o/oauth2/") {
+    // Only auto-dismiss on the final Google OAuth callback page. The broader
+    // /gsi/ and /o/oauth2/ patterns also match the initial auth and account
+    // selection pages, which would dismiss the popup before the user finishes.
+    if url.contains("/gsi/transform") {
       DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
         self.dismissPopup()
       }
