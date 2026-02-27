@@ -24,7 +24,7 @@ class UIDelegateImpl: NSObject, WKUIDelegate, WKNavigationDelegate {
     _ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
     for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures
   ) -> WKWebView? {
-    let isJavaScriptInitiated = navigationAction.navigationType == .other
+    let isPopupNavigation = navigationAction.navigationType == .other && navigationAction.targetFrame == nil
 
     registrar.dispatchOnMainThread { onFailure in
       self.api.onCreateWebView(
@@ -40,7 +40,7 @@ class UIDelegateImpl: NSObject, WKUIDelegate, WKNavigationDelegate {
     // Only create a native popup for JS-initiated window.open() calls (e.g. OAuth).
     // For user-initiated target="_blank" links, return nil so the Dart callback
     // can load the URL in the parent WebView instead.
-    guard isJavaScriptInitiated else { return nil }
+    guard isPopupNavigation else { return nil }
 
     let popup = WKWebView(frame: .zero, configuration: configuration)
     popup.uiDelegate = self
