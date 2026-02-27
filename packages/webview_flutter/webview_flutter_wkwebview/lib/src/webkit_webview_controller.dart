@@ -170,7 +170,10 @@ class WebKitWebViewController extends PlatformWebViewController {
         // WKWebView — don't also load the URL in the parent.
         // For user-initiated target="_blank" links (native returns nil),
         // load in the parent WebView to preserve existing behavior.
-        if (navigationAction.navigationType != NavigationType.other) {
+        final bool isPopupNavigation =
+            navigationAction.navigationType == NavigationType.other &&
+                navigationAction.targetFrame == null;
+        if (!isPopupNavigation) {
           final bool isForMainFrame =
               navigationAction.targetFrame?.isMainFrame ?? false;
           if (!isForMainFrame) {
