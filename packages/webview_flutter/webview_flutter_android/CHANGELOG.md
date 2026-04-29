@@ -1,3 +1,11 @@
+## 4.5.0 (Solflare Fork)
+
+* **Fork Feature**: Adds `AndroidWebViewController.setPaymentRequestEnabled`,
+  exposing `WebSettingsCompat.setPaymentRequestEnabled` (gated by
+  `WebViewFeature.PAYMENT_REQUEST`). Required to use Google Pay inside an
+  embedded WebView via Google's PayJS payframe.
+* Bumps `androidx.webkit:webkit` to 1.14.0 (was 1.12.1) for the new feature flag.
+
 ## 4.4.0 (Solflare Fork)
 
 * **Fork Feature**: Adds `onRenderProcessGone` callback to detect WebView render process crashes.

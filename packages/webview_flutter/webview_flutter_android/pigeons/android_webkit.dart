@@ -336,6 +336,18 @@ abstract class WebSettings {
   /// Tells the WebView to enable JavaScript execution.
   void setJavaScriptEnabled(bool flag);
 
+  /// Sets whether the W3C Payment Request API is enabled for this WebView.
+  ///
+  /// Required to use Google Pay inside an embedded WebView via Google's PayJS
+  /// payframe (which probes the host with `chromeSupportsPaymentHandler()`).
+  ///
+  /// Takes effect only on devices where
+  /// `WebViewFeature.isFeatureSupported(WebViewFeature.PAYMENT_REQUEST)` is
+  /// true (`androidx.webkit:webkit:1.13.0+`); otherwise this is a no-op.
+  ///
+  /// See https://developer.android.com/reference/androidx/webkit/WebSettingsCompat#setPaymentRequestEnabled(android.webkit.WebSettings,boolean)
+  void setPaymentRequestEnabled(bool enabled);
+
   /// Sets the WebView's user-agent string.
   void setUserAgentString(String? userAgentString);
 

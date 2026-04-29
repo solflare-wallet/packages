@@ -1853,6 +1853,20 @@ abstract class PigeonApiWebSettings(open val pigeonRegistrar: AndroidWebkitLibra
   /** Tells the WebView to enable JavaScript execution. */
   abstract fun setJavaScriptEnabled(pigeon_instance: android.webkit.WebSettings, flag: Boolean)
 
+  /**
+   * Sets whether the W3C Payment Request API is enabled for this WebView.
+   *
+   * Required to use Google Pay inside an embedded WebView via Google's PayJS
+   * payframe (which probes the host with `chromeSupportsPaymentHandler()`).
+   *
+   * Takes effect only on devices where
+   * `WebViewFeature.isFeatureSupported(WebViewFeature.PAYMENT_REQUEST)` is
+   * true (`androidx.webkit:webkit:1.13.0+`); otherwise this is a no-op.
+   *
+   * See https://developer.android.com/reference/androidx/webkit/WebSettingsCompat#setPaymentRequestEnabled(android.webkit.WebSettings,boolean)
+   */
+  abstract fun setPaymentRequestEnabled(pigeon_instance: android.webkit.WebSettings, enabled: Boolean)
+
   /** Sets the WebView's user-agent string. */
   abstract fun setUserAgentString(pigeon_instance: android.webkit.WebSettings, userAgentString: String?)
 
@@ -1974,6 +1988,25 @@ abstract class PigeonApiWebSettings(open val pigeonRegistrar: AndroidWebkitLibra
             val flagArg = args[1] as Boolean
             val wrapped: List<Any?> = try {
               api.setJavaScriptEnabled(pigeon_instanceArg, flagArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.webview_flutter_android.WebSettings.setPaymentRequestEnabled", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val pigeon_instanceArg = args[0] as android.webkit.WebSettings
+            val enabledArg = args[1] as Boolean
+            val wrapped: List<Any?> = try {
+              api.setPaymentRequestEnabled(pigeon_instanceArg, enabledArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
