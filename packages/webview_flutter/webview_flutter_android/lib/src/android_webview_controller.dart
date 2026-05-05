@@ -583,7 +583,7 @@ class AndroidWebViewController extends PlatformWebViewController {
   /// payframe (which probes the host with `chromeSupportsPaymentHandler()`).
   ///
   /// Takes effect only on devices where `WebViewFeature.PAYMENT_REQUEST` is
-  /// supported (`androidx.webkit:webkit:1.13.0+`); on older WebView builds this
+  /// supported (`androidx.webkit:webkit:1.14.0+`); on older WebView builds this
   /// is a no-op.
   Future<void> setPaymentRequestEnabled(bool enabled) =>
       _webView.settings.setPaymentRequestEnabled(enabled);

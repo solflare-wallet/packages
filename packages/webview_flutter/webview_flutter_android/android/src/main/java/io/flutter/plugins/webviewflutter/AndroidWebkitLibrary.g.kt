@@ -1861,7 +1861,7 @@ abstract class PigeonApiWebSettings(open val pigeonRegistrar: AndroidWebkitLibra
    *
    * Takes effect only on devices where
    * `WebViewFeature.isFeatureSupported(WebViewFeature.PAYMENT_REQUEST)` is
-   * true (`androidx.webkit:webkit:1.13.0+`); otherwise this is a no-op.
+   * true (`androidx.webkit:webkit:1.14.0+`); otherwise this is a no-op.
    *
    * See https://developer.android.com/reference/androidx/webkit/WebSettingsCompat#setPaymentRequestEnabled(android.webkit.WebSettings,boolean)
    */
