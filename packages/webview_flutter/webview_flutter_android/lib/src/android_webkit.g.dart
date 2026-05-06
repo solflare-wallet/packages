@@ -2433,6 +2433,43 @@ class WebSettings extends PigeonInternalProxyApiBaseClass {
     }
   }
 
+  /// Sets whether the W3C Payment Request API is enabled for this WebView.
+  ///
+  /// Required to use Google Pay inside an embedded WebView via Google's PayJS
+  /// payframe (which probes the host with `chromeSupportsPaymentHandler()`).
+  ///
+  /// Takes effect only on devices where
+  /// `WebViewFeature.isFeatureSupported(WebViewFeature.PAYMENT_REQUEST)` is
+  /// true (`androidx.webkit:webkit:1.14.0+`); otherwise this is a no-op.
+  ///
+  /// See https://developer.android.com/reference/androidx/webkit/WebSettingsCompat#setPaymentRequestEnabled(android.webkit.WebSettings,boolean)
+  Future<void> setPaymentRequestEnabled(bool enabled) async {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _pigeonVar_codecWebSettings;
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const String pigeonVar_channelName =
+        'dev.flutter.pigeon.webview_flutter_android.WebSettings.setPaymentRequestEnabled';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList = await pigeonVar_channel
+        .send(<Object?>[this, enabled]) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
   /// Sets the WebView's user-agent string.
   Future<void> setUserAgentString(String? userAgentString) async {
     final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =

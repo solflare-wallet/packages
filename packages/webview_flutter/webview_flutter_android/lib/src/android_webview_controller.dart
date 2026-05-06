@@ -577,6 +577,17 @@ class AndroidWebViewController extends PlatformWebViewController {
       _webView.settings
           .setJavaScriptEnabled(javaScriptMode == JavaScriptMode.unrestricted);
 
+  /// Enables or disables the W3C Payment Request API for this WebView.
+  ///
+  /// Required to use Google Pay inside an embedded WebView via Google's PayJS
+  /// payframe (which probes the host with `chromeSupportsPaymentHandler()`).
+  ///
+  /// Takes effect only on devices where `WebViewFeature.PAYMENT_REQUEST` is
+  /// supported (`androidx.webkit:webkit:1.14.0+`); on older WebView builds this
+  /// is a no-op.
+  Future<void> setPaymentRequestEnabled(bool enabled) =>
+      _webView.settings.setPaymentRequestEnabled(enabled);
+
   @override
   Future<void> setUserAgent(String? userAgent) =>
       _webView.settings.setUserAgentString(userAgent);
